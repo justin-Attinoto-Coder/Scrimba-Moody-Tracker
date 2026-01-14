@@ -29,28 +29,132 @@
     <div id="mainApp" style="display: none;">
       <header>
         <h1>🌈 Moody</h1>
-        <div>
+        <div class="header-actions">
           <span id="userEmail"></span>
+          <button id="settingsBtn" class="secondary">⚙️ Settings</button>
           <button id="signOutBtn" class="secondary">Sign Out</button>
         </div>
       </header>
 
-      <!-- Mood Input -->
-      <section class="mood-input">
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="mood">📝 Track Mood</button>
+        <button class="nav-tab" data-tab="stats">📊 Statistics</button>
+        <button class="nav-tab" data-tab="history">📅 History</button>
+      </nav>
+
+      <!-- Tab Content -->
+      <div id="moodTab" class="tab-content active">
+        <!-- Mood Input -->
+        <section class="mood-input">
         <h2>How are you feeling?</h2>
         <div class="mood-selector">
-          <button class="mood-emoji" data-mood="😢">😢</button>
-          <button class="mood-emoji" data-mood="😐">😐</button>
-          <button class="mood-emoji" data-mood="🙂">🙂</button>
-          <button class="mood-emoji" data-mood="😊">😊</button>
-          <button class="mood-emoji" data-mood="🤩">🤩</button>
-        </div>
-        <textarea id="moodText" placeholder="Write a short note... (optional)"></textarea>
-        <button id="submitMoodBtn" class="primary">Save Mood</button>
-      </section>
+        <!-- Filter -->
+        <section class="filter-section">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="today">Today</button>
+          <button class="filter-btn" data-filter="week">This Week</button>
+          <button class="filter-btn" data-filter="month">This Month</button>
+        </section>
 
-      <!-- Filter -->
-      <section class="filter-section">
+        <!-- Posts -->
+        <section id="postsContainer" class="posts-container">
+          <!-- Posts will appear here -->
+        </section>
+      </div>
+
+      <!-- Statistics Tab -->
+      <div id="statsTab" class="tab-content">
+        <section class="stats-dashboard">
+          <h2>📊 Your Mood Analytics</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-value" id="totalMoods">0</div>
+              <div class="stat-label">Total Entries</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📈</div>
+              <div class="stat-value" id="thisWeekMoods">0</div>
+              <div class="stat-label">This Week</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🌟</div>
+              <div class="stat-value" id="topMood">-</div>
+              <div class="stat-label">Most Common</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🔥</div>
+              <div class="stat-value" id="currentStreak">0</div>
+              <div class="stat-label">Day Streak</div>
+            </div>
+          </div>
+          <div class="mood-breakdown">
+            <h3>Mood Distribution</h3>
+            <div id="moodChart" class="mood-chart"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- History Tab -->
+      <div id="historyTab" class="tab-content">
+        <section class="history-view">
+          <h2>📅 Mood History</h2>
+          <div id="historyContainer" class="history-container">
+            <!-- History will appear here -->
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>⚙️ Account Settings</h2>
+          <button id="closeSettingsBtn" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="settings-section">
+            <h3>👤 Profile</h3>
+            <p class="user-info">
+              <strong>Email:</strong> <span id="settingsEmail"></span>
+            </p>
+            <p class="user-info">
+              <strong>Provider:</strong> <span id="settingsProvider"></span>
+            </p>
+          </div>
+
+          <div class="settings-section" id="passwordSection">
+            <h3>🔐 Change Password</h3>
+            <p class="info-text">Strengthen your account security by updating your password.</p>
+            <div class="form-group">
+              <label for="currentPassword">Current Password</label>
+              <input type="password" id="currentPassword" placeholder="Enter current password" />
+            </div>
+            <div class="form-group">
+              <label for="newPassword">New Password</label>
+              <input type="password" id="newPassword" placeholder="Enter new password (min 6 chars)" />
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm New Password</label>
+              <input type="password" id="confirmPassword" placeholder="Confirm new password" />
+            </div>
+            <button id="changePasswordBtn" class="primary">Update Password</button>
+            <p id="passwordMessage" class="message"></p>
+          </div>
+
+          <div class="settings-section">
+            <h3>🎨 Theme Preferences</h3>
+            <p class="info-text">Customize your experience (coming soon!)</p>
+          </div>
+
+          <div class="settings-section danger-zone">
+            <h3>⚠️ Danger Zone</h3>
+            <button id="deleteAccountBtn" class="danger-btn">Delete Account</button>
+          </div>
+        </div>
+      </divclass="filter-section">
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="today">Today</button>
         <button class="filter-btn" data-filter="week">This Week</button>

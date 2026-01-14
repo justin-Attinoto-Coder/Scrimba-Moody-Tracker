@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moody – Track Your Mood</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Auth Section -->
+    <div id="authSection" class="auth-section">
+      <h1>🌈 Moody</h1>
+      <p>Track your mood, privately.</p>
+      <button id="emailAuthBtn" class="primary">Sign in with Email</button>
+      <button id="googleAuthBtn" class="primary">Sign in with Google</button>
+      
+      <!-- Email Form (hidden initially) -->
+      <div id="emailForm" style="display: none;">
+        <input type="email" id="emailInput" placeholder="Email" />
+        <input type="password" id="passwordInput" placeholder="Password" />
+        <button id="emailSignInBtn">Sign In</button>
+        <button id="emailSignUpBtn">Sign Up</button>
+        <button id="cancelEmailBtn">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Main App (hidden until logged in) -->
+    <div id="mainApp" style="display: none;">
+      <header>
+        <h1>🌈 Moody</h1>
+        <div>
+          <span id="userEmail"></span>
+          <button id="signOutBtn" class="secondary">Sign Out</button>
+        </div>
+      </header>
+
+      <!-- Mood Input -->
+      <section class="mood-input">
+        <h2>How are you feeling?</h2>
+        <div class="mood-selector">
+          <button class="mood-emoji" data-mood="😢">😢</button>
+          <button class="mood-emoji" data-mood="😐">😐</button>
+          <button class="mood-emoji" data-mood="🙂">🙂</button>
+          <button class="mood-emoji" data-mood="😊">😊</button>
+          <button class="mood-emoji" data-mood="🤩">🤩</button>
+        </div>
+        <textarea id="moodText" placeholder="Write a short note... (optional)"></textarea>
+        <button id="submitMoodBtn" class="primary">Save Mood</button>
+      </section>
+
+      <!-- Filter -->
+      <section class="filter-section">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="today">Today</button>
+        <button class="filter-btn" data-filter="week">This Week</button>
+        <button class="filter-btn" data-filter="month">This Month</button>
+      </section>
+
+      <!-- Posts -->
+      <section id="postsContainer" class="posts-container">
+        <!-- Posts will appear here -->
+      </section>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

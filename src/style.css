@@ -1,0 +1,301 @@
+:root {
+  /* Base Colors */
+  --color-bg: #FFF8F0;
+  --color-text: #2C3E50;
+  --color-primary: #FFDE00;
+  --color-secondary: #62EEA8;
+  
+  /* Gradient Variables */
+  --gradient-primary: linear-gradient(135deg, #FFDE00 0%, #FFE769 50%, #FFDE00 100%);
+  --gradient-secondary: linear-gradient(135deg, #FFE4BA 0%, #FFF6E8 100%);
+  --gradient-post: linear-gradient(135deg, #62EEA8 0%, #A8EEE6 100%);
+  --gradient-sad: linear-gradient(135deg, #89CFF0 0%, #D4E7F5 100%);
+  --gradient-neutral: linear-gradient(135deg, #F5E6D3 0%, #FFF8E7 100%);
+  --gradient-happy: linear-gradient(135deg, #FFD700 0%, #FFE87C 100%);
+}
+
+/* Animations */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--gradient-secondary);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--color-text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+#app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Auth Section */
+.auth-section {
+  text-align: center;
+  padding: 60px 20px;
+  animation: fadeIn 0.5s ease;
+}
+
+.auth-section h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.auth-section p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  opacity: 0.8;
+}
+
+#emailForm {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 300px;
+  margin: 20px auto;
+}
+
+#emailForm input {
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+/* Buttons */
+button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button.primary {
+  background: var(--gradient-primary);
+  color: #333;
+  margin: 5px;
+}
+
+button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 222, 0, 0.4);
+}
+
+button.secondary {
+  background: #f0f0f0;
+  color: #333;
+}
+
+button.secondary:hover {
+  background: #e0e0e0;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 2px solid rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+header h1 {
+  font-size: 2rem;
+}
+
+header div {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+#userEmail {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Mood Input */
+.mood-input {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  margin-bottom: 30px;
+  animation: fadeIn 0.5s ease;
+}
+
+.mood-input h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.mood-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.mood-emoji {
+  font-size: 2.5rem;
+  background: none;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mood-emoji:hover {
+  transform: scale(1.2);
+  background: radial-gradient(circle, rgba(255,255,255,0.8), transparent);
+}
+
+.mood-emoji.selected {
+  border-color: var(--color-primary);
+  background: radial-gradient(circle, rgba(255,222,0,0.3), transparent);
+  transform: scale(1.15);
+}
+
+#moodText {
+  width: 100%;
+  min-height: 100px;
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  margin-bottom: 15px;
+}
+
+#moodText:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Filter Section */
+.filter-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: white;
+  color: #666;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.filter-btn.active {
+  background: var(--gradient-primary);
+  color: #333;
+}
+
+/* Posts */
+.posts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.post {
+  background: var(--gradient-post);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  animation: fadeIn 0.3s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.post:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.post-mood {
+  font-size: 2rem;
+}
+
+.post-date {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.post-text {
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+.post-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.post-actions button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.edit-btn {
+  background: #FFF;
+  color: #333;
+}
+
+.delete-btn {
+  background: #ff6b6b;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #ff5252;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .mood-selector {
+    gap: 5px;
+  }
+  
+  .mood-emoji {
+    font-size: 2rem;
+    padding: 5px;
+  }
+  
+  header {
+    flex-direction: column;
+    gap: 15px;
+  }
+}

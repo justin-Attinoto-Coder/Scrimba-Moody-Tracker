@@ -93,13 +93,6 @@ onAuthStateChanged(auth, (user) => {
     mainApp.style.display = 'none';
   }
 });
-    loadPosts();
-  } else {
-    currentUser = null;
-    authSection.style.display = 'block';
-    mainApp.style.display = 'none';
-  }
-});
 
 // Email Auth Toggle
 emailAuthBtn.addEventListener('click', () => {
@@ -192,36 +185,6 @@ filterBtns.forEach(btn => {
     loadPosts();
   });
 });
-
-// Load Posts
-function loadPosts() {
-  if (!currentUser) return;
-
-  const postsQuery = query(
-    collection(db, 'posts'),
-    where('userId', '==', currentUser.uid),
-    orderBy('timestamp', 'desc')
-  );
-
-  onSnapshot(postsQuery, (snapshot) => {
-    postsContainer.innerHTML = '';
-    
-    snapshot.forEach((docSnap) => {
-      const post = docSnap.data();
-      const postDate = post.timestamp?.toDate();
-      
-      // Filter logic
-      if (!shouldShowPost(postDate)) return;
-
-      const postEl = createPostElement(docSnap.id, post, postDate);
-      postsContainer.appendChild(postEl);
-    });
-
-    if (postsContainer.children.length === 0) {
-      postsContainer.innerHTML = '<p style="text-align: center; opacity: 0.6;">No posts yet. Share your mood!</p>';
-    }
-  });
-}
 
 // Filter Helper
 function shouldShowPost(postDate) {

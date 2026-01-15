@@ -530,11 +530,11 @@ function updateMoodChart(moodCounts) {
   
   const total = allPosts.length;
   const moodLabels = {
-    '😢': 'Very Sad',
-    '😐': 'Neutral',
-    '🙂': 'Good',
-    '😊': 'Happy',
-    '🤩': 'Excellent'
+    '�': 'Happy',
+    '😢': 'Sad',
+    '😠': 'Angry',
+    '😰': 'Anxious',
+    '😌': 'Calm'
   };
   
   for (const [mood, label] of Object.entries(moodLabels)) {

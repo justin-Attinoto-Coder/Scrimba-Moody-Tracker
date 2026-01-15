@@ -40,3 +40,7 @@ VERCEL-SETUP.md
 DEPLOY.md
 START-DEPLOYMENT.md
 QUICK-START.md
+
+# Screenshots (keep local)
+public/*.png
+public/Screenshot*.png

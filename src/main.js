@@ -50,140 +50,288 @@ let currentFilter = 'all';
 let currentUser = null;
 let allPosts = [];
 
-// DOM Elements
-const authSection = document.getElementById('authSection');
-const mainApp = document.getElementById('mainApp');
-const emailAuthBtn = document.getElementById('emailAuthBtn');
-const googleAuthBtn = document.getElementById('googleAuthBtn');
-const emailForm = document.getElementById('emailForm');
-const emailSignInBtn = document.getElementById('emailSignInBtn');
-const emailSignUpBtn = document.getElementById('emailSignUpBtn');
-const cancelEmailBtn = document.getElementById('cancelEmailBtn');
-const signOutBtn = document.getElementById('signOutBtn');
-const settingsBtn = document.getElementById('settingsBtn');
-const userEmail = document.getElementById('userEmail');
-const moodEmojis = document.querySelectorAll('.mood-emoji');
-const moodText = document.getElementById('moodText');
-const submitMoodBtn = document.getElementById('submitMoodBtn');
-const filterBtns = document.querySelectorAll('.filter-btn');
-const postsContainer = document.getElementById('postsContainer');
+// DOM Elements - will be initialized after DOM loads
+let authSection, mainApp, emailAuthBtn, googleAuthBtn, emailForm;
+let emailSignInBtn, emailSignUpBtn, cancelEmailBtn, signOutBtn;
+let settingsBtn, userEmail, moodEmojis, moodText, submitMoodBtn;
+let filterBtns, postsContainer, navTabs, tabContents;
+let settingsModal, closeSettingsBtn, changePasswordBtn, deleteAccountBtn;
 
-// Tab Navigation
-const navTabs = document.querySelectorAll('.nav-tab');
-const tabContents = document.querySelectorAll('.tab-content');
+// Initialize DOM elements
+function initializeDOMElements() {
+  authSection = document.getElementById('authSection');
+  mainApp = document.getElementById('mainApp');
+  emailAuthBtn = document.getElementById('emailAuthBtn');
+  googleAuthBtn = document.getElementById('googleAuthBtn');
+  emailForm = document.getElementById('emailForm');
+  emailSignInBtn = document.getElementById('emailSignInBtn');
+  emailSignUpBtn = document.getElementById('emailSignUpBtn');
+  cancelEmailBtn = document.getElementById('cancelEmailBtn');
+  signOutBtn = document.getElementById('signOutBtn');
+  settingsBtn = document.getElementById('settingsBtn');
+  userEmail = document.getElementById('userEmail');
+  moodEmojis = document.querySelectorAll('.mood-emoji');
+  moodText = document.getElementById('moodText');
+  submitMoodBtn = document.getElementById('submitMoodBtn');
+  filterBtns = document.querySelectorAll('.filter-btn');
+  postsContainer = document.getElementById('postsContainer');
+  navTabs = document.querySelectorAll('.nav-tab');
+  tabContents = document.querySelectorAll('.tab-content');
+  settingsModal = document.getElementById('settingsModal');
+  closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  changePasswordBtn = document.getElementById('changePasswordBtn');
+  deleteAccountBtn = document.getElementById('deleteAccountBtn');
+}
 
-// Settings Modal
-const settingsModal = document.getElementById('settingsModal');
-const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-const changePasswordBtn = document.getElementById('changePasswordBtn');
-const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+// Initialize event listeners
+function initializeEventListeners() {
+  if (!emailAuthBtn || !googleAuthBtn) return;
+
+  // Email Auth Toggle
+  emailAuthBtn.addEventListener('click', () => {
+    emailForm.style.display = 'flex';
+    emailAuthBtn.style.display = 'none';
+    googleAuthBtn.style.display = 'none';
+  });
+
+  cancelEmailBtn.addEventListener('click', () => {
+    emailForm.style.display = 'none';
+    emailAuthBtn.style.display = 'inline-block';
+    googleAuthBtn.style.display = 'inline-block';
+  });
+
+  // Sign In with Email
+  emailSignInBtn.addEventListener('click', async () => {
+    const email = document.getElementById('emailInput').value;
+    const password = document.getElementById('passwordInput').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  });
+
+  // Sign Up with Email
+  emailSignUpBtn.addEventListener('click', async () => {
+    const email = document.getElementById('emailInput').value;
+    const password = document.getElementById('passwordInput').value;
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  });
+
+  // Sign In with Google
+  googleAuthBtn.addEventListener('click', async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  });
+
+  // Sign Out
+  signOutBtn.addEventListener('click', () => {
+    signOut(auth);
+  });
+
+  // Mood Selection
+  moodEmojis.forEach(emoji => {
+    emoji.addEventListener('click', () => {
+      moodEmojis.forEach(e => e.classList.remove('selected'));
+      emoji.classList.add('selected');
+      selectedMood = emoji.dataset.mood;
+    });
+  });
+
+  // Submit Mood
+  submitMoodBtn.addEventListener('click', async () => {
+    if (!selectedMood) {
+      alert('Please select a mood!');
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'posts'), {
+        userId: currentUser.uid,
+        mood: selectedMood,
+        text: moodText.value.trim(),
+        timestamp: serverTimestamp()
+      });
+
+      // Reset form
+      selectedMood = null;
+      moodText.value = '';
+      moodEmojis.forEach(e => e.classList.remove('selected'));
+    } catch (error) {
+      alert('Error saving mood: ' + error.message);
+    }
+  });
+
+  // Filter Buttons
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      loadPosts();
+    });
+  });
+
+  // Tab Navigation
+  navTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabName = tab.dataset.tab;
+      
+      // Update tab buttons
+      navTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      // Update tab content
+      tabContents.forEach(content => content.classList.remove('active'));
+      document.getElementById(`${tabName}Tab`).classList.add('active');
+      
+      // Load data for specific tabs
+      if (tabName === 'stats') {
+        updateStatistics();
+      } else if (tabName === 'history') {
+        updateHistory();
+      }
+    });
+  });
+
+  // Settings Modal
+  settingsBtn.addEventListener('click', () => {
+    settingsModal.style.display = 'flex';
+    updateSettingsModal();
+  });
+
+  closeSettingsBtn.addEventListener('click', () => {
+    settingsModal.style.display = 'none';
+    clearPasswordForm();
+  });
+
+  // Click outside modal to close
+  settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) {
+      settingsModal.style.display = 'none';
+      clearPasswordForm();
+    }
+  });
+
+  // Change Password
+  changePasswordBtn.addEventListener('click', async () => {
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const messageEl = document.getElementById('passwordMessage');
+    
+    // Clear previous messages
+    messageEl.className = 'message';
+    messageEl.textContent = '';
+    
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      showMessage(messageEl, 'Please fill in all fields', 'error');
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      showMessage(messageEl, 'New password must be at least 6 characters', 'error');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      showMessage(messageEl, 'New passwords do not match', 'error');
+      return;
+    }
+    
+    try {
+      // Re-authenticate user
+      const credential = EmailAuthProvider.credential(
+        currentUser.email,
+        currentPassword
+      );
+      await reauthenticateWithCredential(currentUser, credential);
+      
+      // Update password
+      await updatePassword(currentUser, newPassword);
+      
+      showMessage(messageEl, '✅ Password updated successfully!', 'success');
+      clearPasswordForm();
+      
+      // Close modal after 2 seconds
+      setTimeout(() => {
+        settingsModal.style.display = 'none';
+      }, 2000);
+      
+    } catch (error) {
+      if (error.code === 'auth/wrong-password') {
+        showMessage(messageEl, 'Current password is incorrect', 'error');
+      } else if (error.code === 'auth/weak-password') {
+        showMessage(messageEl, 'Password is too weak', 'error');
+      } else {
+        showMessage(messageEl, 'Error: ' + error.message, 'error');
+      }
+    }
+  });
+
+  // Delete Account
+  deleteAccountBtn.addEventListener('click', async () => {
+    const confirmation = prompt('⚠️ This will permanently delete your account and all data.\n\nType "DELETE" to confirm:');
+    
+    if (confirmation === 'DELETE') {
+      try {
+        // Delete all user posts first
+        const postsQuery = query(
+          collection(db, 'posts'),
+          where('userId', '==', currentUser.uid)
+        );
+        const snapshot = await getDocs(postsQuery);
+        
+        const deletePromises = [];
+        snapshot.forEach((docSnap) => {
+          deletePromises.push(deleteDoc(doc(db, 'posts', docSnap.id)));
+        });
+        
+        await Promise.all(deletePromises);
+        
+        // Delete user account
+        await deleteUser(currentUser);
+        
+        alert('✅ Account deleted successfully');
+        settingsModal.style.display = 'none';
+        
+      } catch (error) {
+        if (error.code === 'auth/requires-recent-login') {
+          alert('For security, please sign out and sign in again before deleting your account.');
+        } else {
+          alert('Error: ' + error.message);
+        }
+      }
+    }
+  });
+}
 
 // Auth Listeners
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
-    authSection.style.display = 'none';
-    mainApp.style.display = 'block';
-    userEmail.textContent = user.email;
+    if (authSection && mainApp && userEmail) {
+      authSection.style.display = 'none';
+      mainApp.style.display = 'block';
+      userEmail.textContent = user.email;
+    }
     loadPosts();
     updateSettingsModal();
   } else {
     currentUser = null;
-    authSection.style.display = 'block';
-    mainApp.style.display = 'none';
+    if (authSection && mainApp) {
+      authSection.style.display = 'block';
+      mainApp.style.display = 'none';
+    }
   }
-});
-
-// Email Auth Toggle
-emailAuthBtn.addEventListener('click', () => {
-  emailForm.style.display = 'flex';
-  emailAuthBtn.style.display = 'none';
-  googleAuthBtn.style.display = 'none';
-});
-
-cancelEmailBtn.addEventListener('click', () => {
-  emailForm.style.display = 'none';
-  emailAuthBtn.style.display = 'inline-block';
-  googleAuthBtn.style.display = 'inline-block';
-});
-
-// Sign In with Email
-emailSignInBtn.addEventListener('click', async () => {
-  const email = document.getElementById('emailInput').value;
-  const password = document.getElementById('passwordInput').value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    alert('Error: ' + error.message);
-  }
-});
-
-// Sign Up with Email
-emailSignUpBtn.addEventListener('click', async () => {
-  const email = document.getElementById('emailInput').value;
-  const password = document.getElementById('passwordInput').value;
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    alert('Error: ' + error.message);
-  }
-});
-
-// Sign In with Google
-googleAuthBtn.addEventListener('click', async () => {
-  try {
-    await signInWithPopup(auth, googleProvider);
-  } catch (error) {
-    alert('Error: ' + error.message);
-  }
-});
-
-// Sign Out
-signOutBtn.addEventListener('click', () => {
-  signOut(auth);
-});
-
-// Mood Selection
-moodEmojis.forEach(emoji => {
-  emoji.addEventListener('click', () => {
-    moodEmojis.forEach(e => e.classList.remove('selected'));
-    emoji.classList.add('selected');
-    selectedMood = emoji.dataset.mood;
-  });
-});
-
-// Submit Mood
-submitMoodBtn.addEventListener('click', async () => {
-  if (!selectedMood) {
-    alert('Please select a mood!');
-    return;
-  }
-
-  try {
-    await addDoc(collection(db, 'posts'), {
-      userId: currentUser.uid,
-      mood: selectedMood,
-      text: moodText.value.trim(),
-      timestamp: serverTimestamp()
-    });
-
-    // Reset form
-    selectedMood = null;
-    moodText.value = '';
-    moodEmojis.forEach(e => e.classList.remove('selected'));
-  } catch (error) {
-    alert('Error saving mood: ' + error.message);
-  }
-});
-
-// Filter Buttons
-filterBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    filterBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    loadPosts();
-  });
 });
 
 // Filter Helper
@@ -259,52 +407,17 @@ window.editPost = async (id, currentText) => {
   }
 };
 
-// Tab Navigation
-navTabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    const tabName = tab.dataset.tab;
-    
-    // Update tab buttons
-    navTabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    
-    // Update tab content
-    tabContents.forEach(content => content.classList.remove('active'));
-    document.getElementById(`${tabName}Tab`).classList.add('active');
-    
-    // Load data for specific tabs
-    if (tabName === 'stats') {
-      updateStatistics();
-    } else if (tabName === 'history') {
-      updateHistory();
-    }
-  });
-});
-
-// Settings Modal
-settingsBtn.addEventListener('click', () => {
-  settingsModal.style.display = 'flex';
-  updateSettingsModal();
-});
-
-closeSettingsBtn.addEventListener('click', () => {
-  settingsModal.style.display = 'none';
-  clearPasswordForm();
-});
-
-// Click outside modal to close
-settingsModal.addEventListener('click', (e) => {
-  if (e.target === settingsModal) {
-    settingsModal.style.display = 'none';
-    clearPasswordForm();
-  }
-});
-
 // Update Settings Modal
 function updateSettingsModal() {
   if (!currentUser) return;
   
-  document.getElementById('settingsEmail').textContent = currentUser.email;
+  const settingsEmail = document.getElementById('settingsEmail');
+  const settingsProvider = document.getElementById('settingsProvider');
+  const passwordSection = document.getElementById('passwordSection');
+  
+  if (settingsEmail) {
+    settingsEmail.textContent = currentUser.email;
+  }
   
   // Determine provider
   const provider = currentUser.providerData[0]?.providerId;
@@ -312,105 +425,18 @@ function updateSettingsModal() {
   if (provider === 'google.com') {
     providerText = 'Google';
     // Hide password section for Google users
-    document.getElementById('passwordSection').style.display = 'none';
+    if (passwordSection) {
+      passwordSection.style.display = 'none';
+    }
   } else {
-    document.getElementById('passwordSection').style.display = 'block';
+    if (passwordSection) {
+      passwordSection.style.display = 'block';
+    }
   }
-  document.getElementById('settingsProvider').textContent = providerText;
+  if (settingsProvider) {
+    settingsProvider.textContent = providerText;
+  }
 }
-
-// Change Password
-changePasswordBtn.addEventListener('click', async () => {
-  const currentPassword = document.getElementById('currentPassword').value;
-  const newPassword = document.getElementById('newPassword').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
-  const messageEl = document.getElementById('passwordMessage');
-  
-  // Clear previous messages
-  messageEl.className = 'message';
-  messageEl.textContent = '';
-  
-  // Validation
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    showMessage(messageEl, 'Please fill in all fields', 'error');
-    return;
-  }
-  
-  if (newPassword.length < 6) {
-    showMessage(messageEl, 'New password must be at least 6 characters', 'error');
-    return;
-  }
-  
-  if (newPassword !== confirmPassword) {
-    showMessage(messageEl, 'New passwords do not match', 'error');
-    return;
-  }
-  
-  try {
-    // Re-authenticate user
-    const credential = EmailAuthProvider.credential(
-      currentUser.email,
-      currentPassword
-    );
-    await reauthenticateWithCredential(currentUser, credential);
-    
-    // Update password
-    await updatePassword(currentUser, newPassword);
-    
-    showMessage(messageEl, '✅ Password updated successfully!', 'success');
-    clearPasswordForm();
-    
-    // Close modal after 2 seconds
-    setTimeout(() => {
-      settingsModal.style.display = 'none';
-    }, 2000);
-    
-  } catch (error) {
-    if (error.code === 'auth/wrong-password') {
-      showMessage(messageEl, 'Current password is incorrect', 'error');
-    } else if (error.code === 'auth/weak-password') {
-      showMessage(messageEl, 'Password is too weak', 'error');
-    } else {
-      showMessage(messageEl, 'Error: ' + error.message, 'error');
-    }
-  }
-});
-
-// Delete Account
-deleteAccountBtn.addEventListener('click', async () => {
-  const confirmation = prompt('⚠️ This will permanently delete your account and all data.\n\nType "DELETE" to confirm:');
-  
-  if (confirmation === 'DELETE') {
-    try {
-      // Delete all user posts first
-      const postsQuery = query(
-        collection(db, 'posts'),
-        where('userId', '==', currentUser.uid)
-      );
-      const snapshot = await getDocs(postsQuery);
-      
-      const deletePromises = [];
-      snapshot.forEach((docSnap) => {
-        deletePromises.push(deleteDoc(doc(db, 'posts', docSnap.id)));
-      });
-      
-      await Promise.all(deletePromises);
-      
-      // Delete user account
-      await deleteUser(currentUser);
-      
-      alert('✅ Account deleted successfully');
-      settingsModal.style.display = 'none';
-      
-    } catch (error) {
-      if (error.code === 'auth/requires-recent-login') {
-        alert('For security, please sign out and sign in again before deleting your account.');
-      } else {
-        alert('Error: ' + error.message);
-      }
-    }
-  }
-});
 
 // Helper Functions
 function showMessage(element, message, type) {
@@ -573,7 +599,7 @@ function updateHistory() {
 
 // Load Posts (Enhanced)
 function loadPosts() {
-  if (!currentUser) return;
+  if (!currentUser || !postsContainer) return;
 
   const postsQuery = query(
     collection(db, 'posts'),
@@ -611,10 +637,22 @@ function loadPosts() {
     }
     
     // Update stats if on stats tab
-    if (document.getElementById('statsTab').classList.contains('active')) {
+    const statsTab = document.getElementById('statsTab');
+    if (statsTab && statsTab.classList.contains('active')) {
       updateStatistics();
     }
   });
 }
 
-console.log('🌈 Moody initialized!');
+// Initialize app when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeDOMElements();
+    initializeEventListeners();
+    console.log('🌈 Moody initialized!');
+  });
+} else {
+  initializeDOMElements();
+  initializeEventListeners();
+  console.log('🌈 Moody initialized!');
+}

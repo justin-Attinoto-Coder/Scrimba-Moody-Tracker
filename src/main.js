@@ -141,7 +141,7 @@ function initializeEventListeners() {
     emoji.addEventListener('click', () => {
       moodEmojis.forEach(e => e.classList.remove('selected'));
       emoji.classList.add('selected');
-      selectedMood = emoji.dataset.mood;
+      selectedMood = emoji.textContent.trim(); // Save the emoji itself, not the data-mood attribute
     });
   });
 
